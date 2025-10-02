@@ -1,9 +1,12 @@
+# requirements.txt
 streamlit
 pandas
 numpy
 matplotlib
-plotly
+seaborn
+scipy
+sympy
 scikit-learn
+plotly
 pillow
 requests
-seaborn
