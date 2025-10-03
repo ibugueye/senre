@@ -1504,10 +1504,41 @@ elif module == "🏦 Module 8 - Projet Immobilier":
     df_housing = load_housing_data()
     st.dataframe(df_housing.head(10), use_container_width=True)
 
-    # Préparation des données
+    # Préparation des données (version compatible)
+    from sklearn.compose import ColumnTransformer
+    from sklearn.preprocessing import OneHotEncoder
+
+    # Séparer X, y
     X = df_housing.drop("median_house_value", axis=1)
     y = df_housing["median_house_value"]
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    # Identifier colonnes catégorielles
+    cat_cols = X.select_dtypes(include=['object', 'category']).columns.tolist()
+    num_cols = [c for c in X.columns if c not in cat_cols]
+
+    # SOLUTION COMPATIBLE : Gérer manuellement l'encodage
+    if len(cat_cols) > 0:
+        # Appliquer OneHotEncoder manuellement
+        ohe = OneHotEncoder(handle_unknown='ignore')
+        encoded_cats = ohe.fit_transform(X[cat_cols])
+        
+        # Créer les noms de colonnes
+        ohe_cols = ohe.get_feature_names_out(cat_cols)
+        
+        # Convertir en DataFrame
+        encoded_df = pd.DataFrame(encoded_cats.toarray() if hasattr(encoded_cats, 'toarray') else encoded_cats, 
+                                 columns=ohe_cols)
+        
+        # Combiner avec les colonnes numériques
+        X_processed = pd.concat([encoded_df, X[num_cols].reset_index(drop=True)], axis=1)
+    else:
+        X_processed = X.copy()
+
+    # S'assurer des types numériques
+    X_processed = X_processed.apply(pd.to_numeric, errors='coerce').fillna(0)
+
+    # Split train/test
+    X_train, X_test, y_train, y_test = train_test_split(X_processed, y, test_size=0.2, random_state=42)
 
     # Entraînement du modèle
     model = RandomForestRegressor(n_estimators=100, random_state=42)
@@ -1518,20 +1549,79 @@ elif module == "🏦 Module 8 - Projet Immobilier":
     mse = mean_squared_error(y_test, y_pred)
     r2 = r2_score(y_test, y_pred)
 
-    st.metric("MSE", f"{mse:.3f}")
-    st.metric("R²", f"{r2:.3f}")
+    # Affichage des métriques
+    col1, col2 = st.columns(2)
+    with col1:
+        st.metric("MSE", f"{mse:.3f}")
+    with col2:
+        st.metric("R²", f"{r2:.3f}")
 
-    # Visualisation
+    # Visualisation Prédictions vs Réelles
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=y_test, y=y_pred, mode='markers', name='Prédictions'))
     fig.add_trace(go.Scatter(x=[y_test.min(), y_test.max()], y=[y_test.min(), y_test.max()], mode='lines', name='Ligne idéale'))
     fig.update_layout(title='Prédictions vs Réelles', xaxis_title='Valeurs Réelles', yaxis_title='Valeurs Prédites', height=500)
     st.plotly_chart(fig, use_container_width=True)
 
-    st.markdown("""
+    # Importance des features
+    try:
+        feature_importance = pd.DataFrame({
+            'Feature': X_processed.columns.tolist(),
+            'Importance': model.feature_importances_
+        }).sort_values('Importance', ascending=True)
+
+        fig_imp = px.bar(feature_importance, x='Importance', y='Feature', title='Importance des Features', orientation='h')
+        st.plotly_chart(fig_imp, use_container_width=True)
+    except Exception as e:
+        st.warning(f"Importance des features non disponible: {e}")
+
+    st.markdown(f"""
     **🔍 Analyse** :
     - Le modèle explique **{r2:.1%}** de la variance des prix.
     - L'erreur moyenne est de **{mse:.3f}**.
+    - Colonnes catégorielles traitées : {cat_cols if cat_cols else 'Aucune'}
+    """)
+
+    # Entraînement du modèle
+    model = RandomForestRegressor(n_estimators=100, random_state=42)
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+
+    # Métriques
+    mse = mean_squared_error(y_test, y_pred)
+    r2 = r2_score(y_test, y_pred)
+
+    # Affichage des métriques
+    col1, col2 = st.columns(2)
+    with col1:
+        st.metric("MSE", f"{mse:.3f}")
+    with col2:
+        st.metric("R²", f"{r2:.3f}")
+
+    # Visualisation Prédictions vs Réelles
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=y_test, y=y_pred, mode='markers', name='Prédictions'))
+    fig.add_trace(go.Scatter(x=[y_test.min(), y_test.max()], y=[y_test.min(), y_test.max()], mode='lines', name='Ligne idéale'))
+    fig.update_layout(title='Prédictions vs Réelles', xaxis_title='Valeurs Réelles', yaxis_title='Valeurs Prédites', height=500)
+    st.plotly_chart(fig, use_container_width=True)
+
+    # (Optionnel) Importance des features
+    try:
+        feature_importance = pd.DataFrame({
+            'Feature': all_cols,
+            'Importance': model.feature_importances_
+        }).sort_values('Importance', ascending=True)
+
+        fig_imp = px.bar(feature_importance, x='Importance', y='Feature', title='Importance des Features', orientation='h')
+        st.plotly_chart(fig_imp, use_container_width=True)
+    except Exception as e:
+        st.write(f"Importance des features non disponible: {e}")
+
+    st.markdown(f"""
+    **🔍 Analyse** :
+    - Le modèle explique **{r2:.1%}** de la variance des prix.
+    - L'erreur moyenne est de **{mse:.3f}**.
+    - Les colonnes catégorielles ({cat_cols}) ont été encodées via One-Hot Encoding.
     """)
 
 # Module 9 - À Propos
@@ -1547,7 +1637,7 @@ elif module == "📘 À Propos":
 
     **Contact** :
     - **Email** : ibugueye@ngorweb.com
-    - **GitHub** : [https://github.com/ibugueye](https://github.com/ibugueye)
+    - **GitHub** : ["https://github.com/ibugueye"]("https://github.com/ibugueye")
 
     **Licence** : MIT
     """)
@@ -1561,4 +1651,3 @@ st.markdown("""
 📧 <a href="mailto:ibugueye@ngorweb.com">Contact</a>
 </div>
 """, unsafe_allow_html=True)
-
