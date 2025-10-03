@@ -1546,8 +1546,8 @@ elif module == "📘 À Propos":
     - **Technologies utilisées** : Python, Pandas, NumPy, Matplotlib, Seaborn, Plotly, Scikit-Learn, Streamlit.
 
     **Contact** :
-    - **Email** : votre@email.com
-    - **GitHub** : [https://github.com/votre-utilisateur](https://github.com/votre-utilisateur)
+    - **Email** : ibugueye@ngorweb.com
+    - **GitHub** : [https://github.com/ibugueye](https://github.com/ibugueye)
 
     **Licence** : MIT
     """)
@@ -1561,3 +1561,4 @@ st.markdown("""
 📧 <a href="mailto:ibugueye@ngorweb.com">Contact</a>
 </div>
 """, unsafe_allow_html=True)
+
