@@ -1,3 +1,4 @@
+ 
 # app.py
 import streamlit as st
 import pandas as pd
@@ -262,13 +263,13 @@ elif module == "📊 Module 1 - Fondations (Pandas)":
             with fig_col1:
                 fig = px.histogram(df, x="Montant", title="Distribution des montants",
                                   nbins=10, color_discrete_sequence=['#1f77b4'])
-                st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, use_container_width=True, key="histogram_montants_module1")
             with fig_col2:
                 category_stats = df.groupby("Catégorie")["Montant"].mean().reset_index()
                 fig = px.bar(category_stats, x="Catégorie", y="Montant",
                            title="Dépense moyenne par catégorie",
                            color="Catégorie", color_discrete_sequence=px.colors.qualitative.Set3)
-                st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, use_container_width=True, key="bar_categories_module1")
 
             st.markdown("""
             **💡 Insight** :
@@ -370,7 +371,7 @@ median_par_tranche = df.groupby("Tranche_Age")["Salaire"].median()
                            title="Relation Âge-Salaire",
                            color_discrete_sequence=px.colors.qualitative.Set1)
             fig.update_layout(xaxis_title="Âge", yaxis_title="Salaire (€)")
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, use_container_width=True, key="scatter_age_salaire_solution")
 
             st.markdown(f"""
             **🔍 Analyse** :
@@ -450,7 +451,7 @@ elif module == "📈 Module 2 - Statistiques":
         fig.add_trace(go.Histogram(x=data, nbinsx=50, name='Distribution', marker_color='#1f77b4'), row=1, col=1)
         fig.add_trace(go.Box(y=data, name='Boîte à moustaches', marker_color='#1f77b4'), row=1, col=2)
         fig.update_layout(height=400, showlegend=False)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, use_container_width=True, key="distribution_visualization")
 
         st.markdown("""
         **💡 Interprétation** :
@@ -507,7 +508,7 @@ elif module == "📈 Module 2 - Statistiques":
             fig.add_trace(go.Box(y=groupe_A, name='Groupe A', boxpoints='all', marker_color='#1f77b4'))
             fig.add_trace(go.Box(y=groupe_B, name='Groupe B', boxpoints='all', marker_color='#ff7f0e'))
             fig.update_layout(title='Comparaison des groupes - Boxplots', yaxis_title='Valeurs')
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, use_container_width=True, key="boxplot_ttest")
 
             st.markdown("""
             **🔍 Conclusion** :
@@ -554,7 +555,7 @@ elif module == "📈 Module 2 - Statistiques":
             fig.add_trace(go.Box(y=st.session_state.groupe_A, name='Groupe A', boxpoints='all', marker_color='#1f77b4'))
             fig.add_trace(go.Box(y=st.session_state.groupe_B, name='Groupe B', boxpoints='all', marker_color='#2ca02c'))
             fig.update_layout(title='Distribution des Scores par Groupe', height=400)
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, use_container_width=True, key="boxplot_exercise")
 
         st.markdown('</div>', unsafe_allow_html=True)
 
@@ -618,7 +619,12 @@ elif module == "📈 Module 2 - Statistiques":
             - **Différence moyenne** : {diff_mean:.2f} points en faveur du Groupe B.
             - **Significativité** : {significance} (p = {p_value:.4f}).
             - **Recommandation** : {recommandation}.
-            """)
+            """.format(
+                diff_mean=mean2 - mean1,
+                significance="✅ Significative" if p_value < 0.05 else "❌ Non significative",
+                p_value=p_value,
+                recommandation="Adopter la nouvelle méthode" if p_value < 0.05 else "Conserver la méthode actuelle"
+            ))
 
 # Module 3 - Mathématiques
 elif module == "🧮 Module 3 - Mathématiques":
@@ -681,7 +687,7 @@ elif module == "🧮 Module 3 - Mathématiques":
                         xaxis=dict(range=[-11, 11], title='Axe x'),
                         yaxis=dict(range=[-11, 11], title='Axe y'),
                         showlegend=True, height=500)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, use_container_width=True, key="vecteurs_visualization")
 
         st.markdown("""
         **🔍 Interprétation** :
@@ -734,7 +740,7 @@ elif module == "🧮 Module 3 - Mathématiques":
                                        marker=dict(size=10, color='red'),
                                        name=f'Point ({point}, {valeur_fonction:.2f})'))
                 fig.update_layout(title='Fonction et sa dérivée', height=500)
-                st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, use_container_width=True, key="derivee_visualization")
 
             except Exception as e:
                 st.error(f"Erreur : {e}")
@@ -830,7 +836,7 @@ elif module == "🤖 Module 4 - ML Introduction":
         y_line = model.predict(x_line)
         fig.add_trace(go.Scatter(x=x_line.ravel(), y=y_line, mode='lines', name='Régression', line=dict(color='black', width=3)))
         fig.update_layout(title='Régression Linéaire', xaxis_title='X', yaxis_title='y', height=500)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, use_container_width=True, key="regression_linear")
 
         st.markdown("""
         **🔍 Interprétation** :
@@ -910,7 +916,7 @@ elif module == "🤖 Module 4 - ML Introduction":
             fig = px.scatter(x=X_cv.ravel(), y=y_cv, color=fold_assignments.astype(str),
                            title=f'Répartition des {n_splits} folds',
                            labels={'color': 'Fold'}, color_discrete_sequence=px.colors.qualitative.Set1)
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, use_container_width=True, key="cv_folds")
 
         if st.button("🎯 Exécuter la Validation Croisée"):
             y_cv_class = (y_cv > np.median(y_cv)).astype(int)
@@ -935,7 +941,7 @@ elif module == "🤖 Module 4 - ML Introduction":
                 fig.add_trace(go.Scatter(x=list(range(1, n_splits + 1)), y=results['scores'],
                                        mode='lines+markers', name=name, line=dict(width=2)))
             fig.update_layout(title='Accuracy par Fold', xaxis_title='Fold', yaxis_title='Accuracy', height=400)
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, use_container_width=True, key="cv_performance")
 
             # Tableau des résultats
             results_df = pd.DataFrame({
@@ -990,7 +996,7 @@ elif module == "🤖 Module 4 - ML Introduction":
             fig.add_trace(go.Scatter(x=degrees, y=test_scores, name='Test', line=dict(color='#ff7f0e')))
             fig.add_vline(x=degree, line_dash="dash", line_color="green", annotation_text="Degré sélectionné")
             fig.update_layout(title='Courbe de Surapprentissage', xaxis_title='Degré', yaxis_title='R²', height=400)
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, use_container_width=True, key="overfitting_curve")
 
         if st.button("🎯 Visualiser le Surapprentissage"):
             poly = PolynomialFeatures(degree=degree)
@@ -1008,7 +1014,7 @@ elif module == "🤖 Module 4 - ML Introduction":
             fig.add_trace(go.Scatter(x=X_plot.ravel(), y=true_function, mode='lines', name='Vraie fonction', line=dict(color='green', dash='dash')))
             fig.add_trace(go.Scatter(x=X_plot.ravel(), y=y_plot, mode='lines', name=f'Modèle (degré {degree})', line=dict(color='orange')))
             fig.update_layout(title=f'Surapprentissage avec degré {degree}', xaxis_title='X', yaxis_title='y', height=500)
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, use_container_width=True, key="overfitting_visualization")
 
             train_score = model.score(X_poly_train, y_train)
             test_score = model.score(X_poly_test, y_test)
@@ -1100,7 +1106,7 @@ elif module == "🌲 Module 5 - Algorithmes ML":
             fig = px.bar(x=list(results.keys()), y=list(results.values()),
                        title="Accuracy par Algorithme", labels={'x': 'Algorithme', 'y': 'Accuracy'},
                        color=list(results.values()), color_continuous_scale='Viridis')
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, use_container_width=True, key="algorithms_comparison")
 
             # Affichage détaillé
             for name, accuracy in results.items():
@@ -1123,7 +1129,7 @@ elif module == "🌲 Module 5 - Algorithmes ML":
                 fig.add_trace(go.Scatter(x=X_test[:, 0], y=X_test[:, 1], mode='markers',
                                        marker=dict(color=y_test, colorscale='Viridis', size=8, line=dict(width=1, color='black'))))
                 fig.update_layout(title=f'Frontière de décision - {algo_viz}', xaxis_title='Feature 1', yaxis_title='Feature 2', height=500)
-                st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, use_container_width=True, key=f"decision_boundary_{algo_viz}")
 
     with tab2:
         st.subheader("🌳 Random Forest en Détail")
@@ -1164,7 +1170,7 @@ elif module == "🌲 Module 5 - Algorithmes ML":
         }).sort_values('Importance', ascending=True)
 
         fig = px.bar(feature_importance, x='Importance', y='Feature', title='Importance des Features', orientation='h')
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, use_container_width=True, key="feature_importance_rf")
 
     with tab3:
         st.subheader("📊 Métriques Avancées : Courbe ROC et Precision-Recall")
@@ -1206,7 +1212,7 @@ elif module == "🌲 Module 5 - Algorithmes ML":
         fig.add_trace(go.Scatter(x=fpr, y=tpr, mode='lines', name=f'ROC (AUC = {roc_auc:.2f})'))
         fig.add_trace(go.Scatter(x=[0, 1], y=[0, 1], mode='lines', line=dict(dash='dash'), name='Hasard'))
         fig.update_layout(title='Courbe ROC', xaxis_title='Faux Positifs', yaxis_title='Vrais Positifs', height=500)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, use_container_width=True, key="roc_curve")
 
         # Courbe Precision-Recall
         precision, recall, _ = precision_recall_curve(y_test, y_proba)
@@ -1215,7 +1221,7 @@ elif module == "🌲 Module 5 - Algorithmes ML":
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=recall, y=precision, mode='lines', name=f'PR (AUC = {pr_auc:.2f})'))
         fig.update_layout(title='Courbe Precision-Recall', xaxis_title='Recall', yaxis_title='Precision', height=500)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, use_container_width=True, key="pr_curve")
 
 # Module 6 - Projet Scoring Crédit
 elif module == "🏦 Module 6 - Projet Scoring Crédit":
@@ -1275,11 +1281,11 @@ elif module == "🏦 Module 6 - Projet Scoring Crédit":
         # Visualisations
         fig1 = px.histogram(df_credit, x='Age', color='Rembourse', barmode='overlay',
                           title='Remboursement par Âge', nbins=20)
-        st.plotly_chart(fig1, use_container_width=True)
+        st.plotly_chart(fig1, use_container_width=True, key="histogram_age_credit")
 
         fig2 = px.scatter(df_credit, x='Revenu', y='Dette', color='Rembourse',
                         title='Revenu vs Dette par Statut de Remboursement')
-        st.plotly_chart(fig2, use_container_width=True)
+        st.plotly_chart(fig2, use_container_width=True, key="scatter_revenu_dette")
 
         st.markdown("""
         **🔍 Insights** :
@@ -1333,7 +1339,7 @@ elif module == "🏦 Module 6 - Projet Scoring Crédit":
                           x=['Default (0)', 'Rembourse (1)'],
                           y=['Default (0)', 'Rembourse (1)'],
                           title='Matrice de Confusion', color_continuous_scale='Blues')
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, use_container_width=True, key="confusion_matrix_credit")
 
             # Feature importance
             feature_importance = pd.DataFrame({
@@ -1344,7 +1350,7 @@ elif module == "🏦 Module 6 - Projet Scoring Crédit":
             fig = px.bar(feature_importance, x='Importance', y='Feature',
                        title='Importance des Features pour le Score',
                        orientation='h', color='Importance', color_continuous_scale='Viridis')
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, use_container_width=True, key="feature_importance_credit")
 
             st.markdown("""
             **🔍 Analyse** :
@@ -1416,7 +1422,7 @@ elif module == "🏦 Module 6 - Projet Scoring Crédit":
                         'threshold': {'line': {'color': "black", 'width': 4}, 'thickness': 0.75, 'value': 70}
                     }))
                 fig.update_layout(height=300)
-                st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, use_container_width=True, key="gauge_score_credit")
 
                 # Explication
                 st.markdown(f"""
@@ -1514,6 +1520,7 @@ elif module == "🏦 Module 8 - Projet Immobilier":
 
     # Identifier colonnes catégorielles
     cat_cols = X.select_dtypes(include=['object', 'category']).columns.tolist()
+    
     num_cols = [c for c in X.columns if c not in cat_cols]
 
     # SOLUTION COMPATIBLE : Gérer manuellement l'encodage
@@ -1561,7 +1568,7 @@ elif module == "🏦 Module 8 - Projet Immobilier":
     fig.add_trace(go.Scatter(x=y_test, y=y_pred, mode='markers', name='Prédictions'))
     fig.add_trace(go.Scatter(x=[y_test.min(), y_test.max()], y=[y_test.min(), y_test.max()], mode='lines', name='Ligne idéale'))
     fig.update_layout(title='Prédictions vs Réelles', xaxis_title='Valeurs Réelles', yaxis_title='Valeurs Prédites', height=500)
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True, key="predictions_vs_reelles")
 
     # Importance des features
     try:
@@ -1571,7 +1578,7 @@ elif module == "🏦 Module 8 - Projet Immobilier":
         }).sort_values('Importance', ascending=True)
 
         fig_imp = px.bar(feature_importance, x='Importance', y='Feature', title='Importance des Features', orientation='h')
-        st.plotly_chart(fig_imp, use_container_width=True)
+        st.plotly_chart(fig_imp, use_container_width=True, key="feature_importance_housing")
     except Exception as e:
         st.warning(f"Importance des features non disponible: {e}")
 
@@ -1580,48 +1587,6 @@ elif module == "🏦 Module 8 - Projet Immobilier":
     - Le modèle explique **{r2:.1%}** de la variance des prix.
     - L'erreur moyenne est de **{mse:.3f}**.
     - Colonnes catégorielles traitées : {cat_cols if cat_cols else 'Aucune'}
-    """)
-
-    # Entraînement du modèle
-    model = RandomForestRegressor(n_estimators=100, random_state=42)
-    model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
-
-    # Métriques
-    mse = mean_squared_error(y_test, y_pred)
-    r2 = r2_score(y_test, y_pred)
-
-    # Affichage des métriques
-    col1, col2 = st.columns(2)
-    with col1:
-        st.metric("MSE", f"{mse:.3f}")
-    with col2:
-        st.metric("R²", f"{r2:.3f}")
-
-    # Visualisation Prédictions vs Réelles
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(x=y_test, y=y_pred, mode='markers', name='Prédictions'))
-    fig.add_trace(go.Scatter(x=[y_test.min(), y_test.max()], y=[y_test.min(), y_test.max()], mode='lines', name='Ligne idéale'))
-    fig.update_layout(title='Prédictions vs Réelles', xaxis_title='Valeurs Réelles', yaxis_title='Valeurs Prédites', height=500)
-    st.plotly_chart(fig, use_container_width=True)
-
-    # (Optionnel) Importance des features
-    try:
-        feature_importance = pd.DataFrame({
-            'Feature': all_cols,
-            'Importance': model.feature_importances_
-        }).sort_values('Importance', ascending=True)
-
-        fig_imp = px.bar(feature_importance, x='Importance', y='Feature', title='Importance des Features', orientation='h')
-        st.plotly_chart(fig_imp, use_container_width=True)
-    except Exception as e:
-        st.write(f"Importance des features non disponible: {e}")
-
-    st.markdown(f"""
-    **🔍 Analyse** :
-    - Le modèle explique **{r2:.1%}** de la variance des prix.
-    - L'erreur moyenne est de **{mse:.3f}**.
-    - Les colonnes catégorielles ({cat_cols}) ont été encodées via One-Hot Encoding.
     """)
 
 # Module 9 - À Propos
@@ -1650,4 +1615,4 @@ st.markdown("""
 🔗 <a href="https://github.com/ibugueye" target="_blank">GitHub</a> |
 📧 <a href="mailto:ibugueye@ngorweb.com">Contact</a>
 </div>
-""", unsafe_allow_html=True)
+""", unsafe_allow_html=True) 
