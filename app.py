@@ -1611,8 +1611,9 @@ elif module == "📘 À Propos":
 st.markdown("---")
 st.markdown("""
 <div style='text-align: center; color: gray;'>
-📚 **Cours Interactif de Data Science** — Développé avec ❤️ et Streamlit<br>
+📚 **Cours Interactif de Data Science** — Développé avec Streamlit par Ibrahima Gueye <br>
 🔗 <a href="https://github.com/ibugueye" target="_blank">GitHub</a> |
 📧 <a href="mailto:ibugueye@ngorweb.com">Contact</a>
 </div>
 """, unsafe_allow_html=True) 
+
